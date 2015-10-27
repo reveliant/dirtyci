@@ -1,0 +1,23 @@
+{
+	"git": {
+		"root": "/srv/http",
+		"remote": "origin",
+		"branch": "master"
+	},
+	"github": [
+		{
+			"id": 1234,
+			"local": "myproject"
+		}
+	],
+	"gitlab": [
+		{
+			"id": 1138,
+			"local": "awesome/project"
+		},
+		{
+			"id": 1337,
+			"local": "awesome/ness"
+		}
+	]
+}
