@@ -80,7 +80,11 @@ class Git {
 		$returnval = 0;
 		$localBranch = (is_null($localBranch)) ? self::$localBranch : $localBranch;
 		$remoteBranch = (is_null($remoteBranch)) ? self::$remoteBranch : $remoteBranch;
-		chdir(self::$root . DIRECTORY_SEPARATOR . $repository);
+		if (! (strpos($repository, DIRECTORY_SEPARATOR) === 0) ) {
+			chdir(self::$root . DIRECTORY_SEPARATOR . $repository);
+		} else { // First char is DIRECTORY_SEPARATOR = Absolute path
+			chdir($repository);
+		}
 		exec('git pull ' . escapeshellarg($remoteBranch) . ' ' . escapeshellarg($localBranch), $output, $returnval);
 		Log::event('Pulling for ' . $repository);
 		Log::console($output);
