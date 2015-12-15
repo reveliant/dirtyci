@@ -1,7 +1,7 @@
 {
 	"git": {
 		"root": "/srv/http",
-		"branch": {
+		"branches": {
 			"remote": "origin",
 			"local": "master"
 		}
