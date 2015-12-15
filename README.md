@@ -28,7 +28,7 @@ Receives [GitHub](https://github.com) and [GitLab](https://gitlab.com) webhooks 
   - on GitHub, choose `application/json` for content type and check `Just the push event`
   - on GitLab, check `Push events`
 3. Add the project to the `repositories` section of the config file:
-  - the project __must__ have an `remote.url` property, set with the SSH URL<sup>[2](#ssh-key)</sup> to your repository
+  - the project __must__ have an `remote.url` property, set with the SSH URL<sup>[2](#ssh-url)</sup> of remote repository
   - the project __must__ have a `local.url` property, pointing to the project directory relatively to the `root` set up before 
   - the project _might_ have `remote.branch` and `local.branch` properties if your don't want to use the default values set before.
 
@@ -38,11 +38,11 @@ Receives [GitHub](https://github.com) and [GitLab](https://gitlab.com) webhooks 
 
 Considering we'll only pull from the repository, a read-only access is sufficent.
 
+This step is not necessary if you use HTTPS access to repository.
+
 ### SSH URL
 
-SSH URLs are used as unique, simple-to-found references to map repositories using informations contained in web hooks.
-
-Even if you do not use SSH to pull from the repository, set the SSH URL in the configuration file.
+SSH URLs are used as unique, simple-to-find references to map repositories using informations contained in web hooks, even if you do not use SSH to pull from the repository.
 
 ## License
 
