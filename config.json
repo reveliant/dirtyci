@@ -1,23 +1,24 @@
 {
 	"git": {
 		"root": "/srv/http",
-		"remote": "origin",
-		"branch": "master"
-	},
-	"github": [
-		{
-			"id": 1234,
-			"local": "myproject"
+		"branch": {
+			"remote": "origin",
+			"local": "master"
 		}
-	],
-	"gitlab": [
+	},
+	"repositories": [
 		{
-			"id": 1138,
-			"local": "awesome/project"
+			"remote": {
+				"url": "git@github.com:username/project.git"
+			},
+			"local": {
+				"url": "myproject"
+			}
 		},
 		{
-			"id": 1337,
-			"local": "awesome/ness"
+			"remote": {
+				"url": "git@gitlab.com:username/otherproject.git",
+			"local": "awesome/project"
 		}
 	]
 }

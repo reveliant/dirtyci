@@ -33,8 +33,10 @@ class Log {
 	}
 
 	public static function struct($object) {
-		fwrite(self::$fh, json_encode($object, JSON_PRETTY_PRINT));
-		fwrite(self::$fh, "\n");
+		if ($object !== null) {
+			fwrite(self::$fh, json_encode($object, JSON_PRETTY_PRINT));
+			fwrite(self::$fh, "\n");
+		}
 	}
 
 	public static function console($array) {
@@ -44,50 +46,66 @@ class Log {
 			fwrite(self::$fh, "\n");
 		}
 	}
+
+	public static function client($message) {
+		print($message);
+	}
 }
 
 class Git {
 	private static $root = '/srv/http';
-	private static $remote = 'origin';
-	private static $branch = 'master';
+	private static $remoteBranch = 'origin';
+	private static $localBranch = 'master';
+	private static $repositories = Array();
 
 	public static function config($config) {
-		if (isset($config->root) && isset($config->remote) && isset($config->branch)) {
+		if (isset($config->root) && isset($config->branches) && isset($config->branches->remote) && isset($config->branches->local)) {
 			self::$root = $config->root;
-			self::$remote = $config->remote;
-			self::$branch = $config->branch;
+			self::$remoteBranch = $config->branches->remote;
+			self::$localBranch = $config->branches->local;
 		} else {
-			Log::event('Malformed configuration: missing properties in "git" object');
 			header('HTTP/1.1 500 Internal Server Error');
+			Log::event('Malformed configuration: missing properties in "git" object');
+			Log::client('Malformed configuration on server');
 			exit(1);
 		}
 	}
 
-	public static function pull($repository, $branch = NULL, $remote = NULL) {
+	public static function repositories($repositories) {
+		self::$repositories = $repositories;
+	}
+
+	public static function pull($repository, $localBranch = NULL, $remoteBranch = NULL) {
 		$output = array();
 		$returnval = 0;
-		$branch = (is_null($branch)) ? self::$branch : $branch;
-		$remote = (is_null($remote)) ? self::$remote : $remote;
+		$localBranch = (is_null($localBranch)) ? self::$localBranch : $localBranch;
+		$remoteBranch = (is_null($remoteBranch)) ? self::$remoteBranch : $remoteBranch;
 		chdir(self::$root . DIRECTORY_SEPARATOR . $repository);
-		exec('git pull ' . escapeshellarg($remote) . ' ' . escapeshellarg($branch), $output, $returnval);
+		exec('git pull ' . escapeshellarg($remoteBranch) . ' ' . escapeshellarg($localBranch), $output, $returnval);
 		Log::event('Pulling for ' . $repository);
 		Log::console($output);
 	}
 
-	public static function search($id, $hooks) {
+	public static function search($url) {
 		$found = 0;
-		foreach ($hooks as $hook) {
-			if (!isset($hook->id) || !isset($hook->local)) {
+		foreach (self::$repositories as $hook) {
+			if (!isset($hook->remote) || !isset($hook->remote->url) || !isset($hook->local) || !isset($hook->local->url)) {
 				Log::event('Malformed hook object: ' . json_encode($hook));
-				header('HTTP/1.1 500 Internal Server Error');
-				exit(1);
+				break;
 			}
-			if ($hook->id == $id) {
-				$branch = (isset($hook->branch)) ? $hook->branch : NULL;
-				$remote = (isset($hook->remote)) ? $hook->remote : NULL;
-				self::pull($hook->local, $branch, $remote);
+			if ($hook->remote->url == $url) {
+				$localBranch = (isset($hook->local->branch)) ? $hook->branch->local : NULL;
+				$remoteBranch = (isset($hook->remote->branch)) ? $hook->branch->remote : NULL;
+				self::pull($hook->local->url, $localBranch, $remoteBranch);
 				$found++;
 			}
+		}
+		if ($found) {
+	  		header('HTTP/1.1 204 No Content'); 
+		} else {
+	  		header('HTTP/1.1 202 Accepted'); 
+			Log::event('Received a pull webhook for an unhandled project');
+			Log::client('This repository may not be synchronized');
 		}
 		return $found;
 	}	
@@ -98,45 +116,36 @@ Log::open($log);
 $input = json_decode(file_get_contents('php://input'));
 $conf = json_decode(file_get_contents($config));
 
-if (isset($conf->git)) {
+if (isset($conf->git) && isset($conf->repositories)) {
 	Git::config($conf->git);
+	Git::repositories($conf->repositories);
 } else {
-	Log::event('Malformed configuration: missing "git" object');
 	header('HTTP/1.1 500 Internal Server Error');
+	Log::event('Malformed configuration');
 	exit(1);
 }
 
-if (array_key_exists('HTTP_X_GITHUB_EVENT', $_SERVER) && isset($input->repository->id)) { // GitHub
-	if (!isset($conf->github)) {
-		Log::event('Missing configuration to handle GitHub requests');
-		header('HTTP/1.1 500 Internal Server Error');
-		exit(1);
-	}
+if (array_key_exists('HTTP_X_GITHUB_EVENT', $_SERVER) && isset($input->repository->ssh_url)) { // GitHub
 	if ($_SERVER['HTTP_X_GITHUB_EVENT'] == 'push') {
-		if(! Git::search($input->repository->id, $conf->github)) {
-			Log::event('Received GitHub pull webhook for an unhandled project');
+		if(! Git::search($input->repository->ssh_url)) {
 			Log::struct($input);
 		}
 	} else {
-		Log::event('Received GitHub webhook of unhandled kind ('. $_SERVER['HTTP_X_GITHUB_EVENT'] .')');
+		Log::event('Received a GitHub webhook of unhandled kind ('. $_SERVER['HTTP_X_GITHUB_EVENT'] .')');
 		Log::struct($input);
 	}
-} elseif (isset($input->project_id)) { // GitLab
-	if (!isset($conf->gitlab)) {
-		Log::event('Missing configuration to handle GitLab requests');
-		header('HTTP/1.1 500 Internal Server Error');
-		exit(1);
-	}
-	if (isset($input->object_kind) && $input->object_kind == 'push') {
-		if (! Git::search($input->project_id, $conf->gitlab)) {
-			Log::event('Received GitLab pull webhook for an unhandled project');
+} elseif (array_key_exists('HTTP_X_GITLAB_EVENT', $_SERVER) && isset($input->repository->git_ssh_url)) { // GitLab
+	if ($_SERVER['HTTP_X_GITLAB_EVENT'] == 'Push Hook') {
+		if (! Git::search($input->repository->git_ssh_url)) {
 			Log::struct($input);
 		}
 	} else {
-		Log::event('Received GitLab webhook of unhandled kind');
+		Log::event('Received a GitLab webhook of unhandled kind ('. $_SERVER['HTTP_X_GITLAB_EVENT'] . ')');
 		Log::struct($input);
 	}
 } else { // Something else
+	header('HTTP/1.1 501 Not Implemented'); 
+	Log::client('Unhandled request');
 	Log::event('Received unhandled request');
 	Log::struct($input);
 }
