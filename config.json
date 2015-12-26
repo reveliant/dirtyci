@@ -17,8 +17,11 @@
 		},
 		{
 			"remote": {
-				"url": "git@gitlab.com:username/otherproject.git",
-			"local": "awesome/project"
+				"url": "git@gitlab.com:username/otherproject.git"
+			},
+			"local": {
+				"url": "awesome/project"
+			}
 		}
 	]
 }
