@@ -1,0 +1,4 @@
+/vendor/*/
+/dirtyci
+/plugins/*.so
+config.toml
