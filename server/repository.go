@@ -30,7 +30,7 @@ func transferProgressCallback(stats git.TransferProgress) git.ErrorCode {
 type Repository struct {
 	RemoteUrl       string  `yaml:"remoteUrl"`
 	LocalUrl        string  `yaml:"localUrl"`
-	RemoteName      string  `yaml:"remoteBranch"`
+	RemoteName      string  `yaml:"remoteName"`
 	RemoteBranch    string  `yaml:"remoteBranch"`
 	LocalBranch     string  `yaml:"localBranch"`
 	PublicKeyPath   string  `yaml:"publicKeyPath"`
