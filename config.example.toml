@@ -1,0 +1,17 @@
+[plugins]
+github = "/github"
+gitlab = "/gitlab"
+
+[defaults]
+publicKeyPath = "/usr/local/share/dirtyci/id_rsa.pub"
+privateKeyPath = "/usr/local/share/dirtyci/id_rsa"
+
+[[repositories]]
+remoteUrl = "https://github.com/Codertocat/Hello-World"
+localUrl = "/var/www/Hello-World"
+
+[[repositories]]
+remoteUrl = "http://example.com/mike/diaspora"
+remoteName = "gitlab"
+remoteBranch = "v2"
+localUrl = "/var/www/diaspora"
