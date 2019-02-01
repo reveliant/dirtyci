@@ -24,20 +24,25 @@ First, `go get github.com/reveliant/dirtyci` then :
   ```sh
   cd $GOPATH/src/github.com/reveliant/dirtyci; make
   ```
-## Install
 
-1. Create a Deploy Key for the dirtyci process owner
+## Usage
 
-   This step is not necessary if you only indend to use HTTPS access.
+1. Create a Deploy Key for the dirtyci process owner (not necessary if you
+   indend to only fetch via HTTPS access).
 2. Create a configuration file (see Configuration section below)
 Configure dirtyci (example configuration files are available in the repository)
-3. Start dirtyci
+3. Start dirtyci. The following options are supported:
+   * `-c`: configuration file to use. Default: `config.toml`
+   * `-d`: enable Gin debug mode
+   * `-host IFACE`: interface to listen to (address or hostname).
+     Default: `127.0.0.1`
+   * `-port PORT`: port to listen to. Default: `26979` (`ci` string in decimal)
 
 ## Add a new project
 
 1. Add the Deploy Key to your project
     - A read-only access is sufficent
-    - This step is not necessary if you only use HTTPS access to the repository.
+    - Not necessary if you only fetch repository via HTTPS
 2. `git clone` your project on your web server
 3. Create a new webhook pointing the script
     - on GitHub, choose `application/json` for content type and check `Just the
