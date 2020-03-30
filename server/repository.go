@@ -2,7 +2,7 @@ package server
 
 import (
 	"log"
-	"gopkg.in/libgit2/git2go.v27"
+	"gopkg.in/libgit2/git2go.v29"
 )
 
 func certificateCheckCallback(cert *git.Certificate, valid bool, hostname string) git.ErrorCode {
@@ -38,15 +38,15 @@ type Repository struct {
 }
 
 func (repo *Repository) GetCredentialsCallback() git.CredentialsCallback {
-	return func (url string, username string, allowedTypes git.CredType) (git.ErrorCode, *git.Cred) {
-		var ret int
-		var cred git.Cred
+	return func (url string, username string, allowedTypes git.CredType) (*git.Cred, error) {
+		var cred *git.Cred
+		var err error
 
 		if (allowedTypes & git.CredTypeSshKey) != 0 {
-			ret, cred = git.NewCredSshKey("git", repo.PublicKeyPath, repo.PrivateKeyPath, "")
+			cred, err = git.NewCredSshKey("git", repo.PublicKeyPath, repo.PrivateKeyPath, "")
 		}
 
-		return git.ErrorCode(ret), &cred
+		return cred, err
 	}
 }
 
