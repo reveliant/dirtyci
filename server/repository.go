@@ -2,7 +2,7 @@ package server
 
 import (
 	"log"
-	"gopkg.in/libgit2/git2go.v29"
+	"gopkg.in/libgit2/git2go.v30"
 )
 
 func certificateCheckCallback(cert *git.Certificate, valid bool, hostname string) git.ErrorCode {

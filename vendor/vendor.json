@@ -87,10 +87,10 @@
 			"revisionTime": "2017-07-30T05:02:35Z"
 		},
 		{
-			"checksumSHA1": "3cXa65y5HdZvAQIkdMZtPlDFz3Y=",
-			"path": "gopkg.in/libgit2/git2go.v29",
-			"revision": "0843b826d219b16d55d3bb7fffbb5fb3fbbf82f8",
-			"revisionTime": "2020-03-27T00:50:12Z"
+			"checksumSHA1": "FYXWrSSBHNElyfqei83epmf9Tkg=",
+			"path": "gopkg.in/libgit2/git2go.v30",
+			"revision": "31f877e249e28c29cc4fcd512381a5a5b26e59d9",
+			"revisionTime": "2020-05-10T03:39:51Z"
 		},
 		{
 			"checksumSHA1": "QqDq2x8XOU7IoOR98Cx1eiV5QY8=",
