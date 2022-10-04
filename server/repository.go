@@ -1,18 +1,19 @@
 package server
 
 import (
+	"errors"
 	"log"
-	"gopkg.in/libgit2/git2go.v30"
+	"github.com/libgit2/git2go/v34"
 )
 
-func certificateCheckCallback(cert *git.Certificate, valid bool, hostname string) git.ErrorCode {
+func certificateCheckCallback(cert *git.Certificate, valid bool, hostname string) error {
 	if (cert.Kind == git.CertificateX509) && !valid {
-		return git.ErrCertificate
+		return errors.New("Invalid Certificate")
 	}
-	return git.ErrOk
+	return nil
 }
 
-func transferProgressCallback(stats git.TransferProgress) git.ErrorCode {
+func transferProgressCallback(stats git.TransferProgress) error {
 	if (stats.ReceivedObjects == stats.TotalObjects) {
 		log.Printf("Resolving %d deltas\n", stats.TotalDeltas)
 	} else if (stats.TotalObjects > 0) {
@@ -24,7 +25,7 @@ func transferProgressCallback(stats git.TransferProgress) git.ErrorCode {
 	}
 
 	log.Printf("%s / %s\n", stats.ReceivedObjects, stats.TotalObjects)
-	return git.ErrOk
+	return nil
 }
 
 type Repository struct {
